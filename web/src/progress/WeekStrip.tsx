@@ -31,7 +31,7 @@ export function WeekStrip({ week }: { week: Progress['week'] }) {
         this week.{' '}
         {reached
           ? 'Goal reached.'
-          : 'No streak to keep: any three days this week will do.'}
+          : `No streak to keep: any ${week.goalDays} days this week will do.`}
       </p>
     </section>
   );

@@ -107,6 +107,7 @@ export function PlayersScreen({ onChoose }: Props) {
                 >
                   Continue as {player.displayName}
                 </button>
+                {player.isSample && <span className="badge">Sample data</span>}
                 <button
                   type="button"
                   className="link"

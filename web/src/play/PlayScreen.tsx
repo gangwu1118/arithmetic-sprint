@@ -3,7 +3,10 @@ import type { Attempt, InputType, Round } from '../api.ts';
 import { formatProblem } from '../format.ts';
 import { initialRound, resultToSend, roundReducer } from './round-machine.ts';
 
+// Not a rule of the game: the server only asks that the round's own time
+// has passed. The spec's flow gives the player three seconds to get ready.
 const COUNTDOWN_SECONDS = 3;
+
 const KEYPAD = [
   '1',
   '2',
@@ -63,11 +66,15 @@ export function PlayScreen({ round, onFinished, onAbandoned }: Props) {
     return () => clearInterval(timer);
   }, [state.phase]);
 
-  // The keyboard: digits, Backspace and Enter.
+  // The keyboard: digits, Backspace and Enter. Shortcuts with Ctrl, Cmd or
+  // Alt are left to the browser, and a held digit does not repeat.
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
+      if (event.ctrlKey || event.metaKey || event.altKey) return;
       if (/^\d$/.test(event.key)) {
-        dispatch({ type: 'digit', digit: event.key, source: 'keyboard' });
+        if (!event.repeat) {
+          dispatch({ type: 'digit', digit: event.key, source: 'keyboard' });
+        }
       } else if (event.key === 'Backspace') {
         dispatch({ type: 'delete', source: 'keyboard' });
       } else if (event.key === 'Enter') {
@@ -115,16 +122,17 @@ export function PlayScreen({ round, onFinished, onAbandoned }: Props) {
 
   const problem = state.problems[state.current];
   const timeLeft = Math.max(0, 1 - elapsedMs / state.durationMs);
+  const durationSeconds = state.durationMs / 1_000;
 
   return (
     <main className="play">
       <div
         className="time-bar"
         role="progressbar"
-        aria-label="Time left"
+        aria-label="Time left in seconds"
         aria-valuemin={0}
-        aria-valuemax={60}
-        aria-valuenow={Math.ceil((timeLeft * state.durationMs) / 1_000)}
+        aria-valuemax={durationSeconds}
+        aria-valuenow={Math.ceil(timeLeft * durationSeconds)}
       >
         <div style={{ width: `${timeLeft * 100}%` }} />
       </div>
@@ -135,15 +143,21 @@ export function PlayScreen({ round, onFinished, onAbandoned }: Props) {
         </p>
       )}
 
+      {state.phase === 'playing' && !problem && (
+        <p className="countdown">Every problem solved. Waiting for the time.</p>
+      )}
+
       {state.phase === 'playing' && problem && (
         <>
-          <p className="solved-count">{state.current} solved</p>
+          {/* The position in the round, not a score: only the server scores. */}
+          <p className="position">Problem {state.current + 1}</p>
           <p
             className="problem"
             data-testid="problem"
             data-a={problem.a}
             data-b={problem.b}
             data-operation={problem.operation}
+            aria-live="polite"
           >
             {formatProblem(problem)} =
           </p>

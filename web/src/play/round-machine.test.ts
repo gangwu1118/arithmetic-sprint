@@ -94,8 +94,9 @@ describe('the round in the browser', () => {
     expect(state.attempts).toHaveLength(1);
   });
 
-  it('ends the round when every problem is solved', () => {
-    const state = run([
+  it('after the last problem, waits for the time to run out', () => {
+    // Sending before the round's 60 seconds would be refused as too early.
+    const allSolved = run([
       { type: 'start' },
       ...type('85'),
       submit(1_000),
@@ -103,9 +104,15 @@ describe('the round in the browser', () => {
       submit(2_000),
       ...type('56'),
       submit(3_000),
+      ...type('1'),
+      submit(4_000),
     ]);
 
-    expect(state.phase).toBe('finished');
+    expect(allSolved.phase).toBe('playing');
+    expect(allSolved.attempts).toHaveLength(3);
+    expect(run([{ type: 'tick', atMs: 60_000 }], allSolved).phase).toBe(
+      'finished',
+    );
   });
 
   describe('criterion 22: a hidden page abandons the round', () => {

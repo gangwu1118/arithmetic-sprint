@@ -17,7 +17,7 @@ type Screen =
   | { name: 'players' }
   | { name: 'home' }
   | { name: 'play'; round: Round }
-  | { name: 'result'; result: Result };
+  | { name: 'result'; result: Result; durationMs: number };
 
 function messageOf(error: unknown): string {
   return error instanceof ApiError
@@ -49,11 +49,13 @@ export default function App() {
   }
 
   const finishRound = useCallback(
-    (roundId: string, sent: { attempts: Attempt[]; inputType: InputType }) => {
+    (round: Round, sent: { attempts: Attempt[]; inputType: InputType }) => {
       if (!player) return;
       api
-        .submitResult(player.key, roundId, sent)
-        .then(({ result }) => setScreen({ name: 'result', result }))
+        .submitResult(player.key, round.id, sent)
+        .then(({ result }) =>
+          setScreen({ name: 'result', result, durationMs: round.durationMs }),
+        )
         .catch((caught: unknown) => {
           setNotice(`Your answers could not be saved: ${messageOf(caught)}`);
           setScreen({ name: 'home' });
@@ -98,7 +100,7 @@ export default function App() {
         <PlayScreen
           key={screen.round.id}
           round={screen.round}
-          onFinished={(sent) => finishRound(screen.round.id, sent)}
+          onFinished={(sent) => finishRound(screen.round, sent)}
           onAbandoned={abandonRound}
         />
       );
@@ -106,6 +108,7 @@ export default function App() {
       return (
         <ResultScreen
           result={screen.result}
+          durationMs={screen.durationMs}
           starting={starting}
           onPlayAgain={() => void startRound()}
           onBack={() => setScreen({ name: 'home' })}

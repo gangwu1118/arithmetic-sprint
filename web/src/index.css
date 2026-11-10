@@ -295,6 +295,10 @@ td {
   stroke-width: 2;
 }
 
+.chart .dot.keypad-round {
+  fill: var(--ink);
+}
+
 .chart figcaption {
   color: var(--muted);
   font-size: 0.9rem;
@@ -324,7 +328,7 @@ td {
   margin: 3rem 0;
 }
 
-.solved-count {
+.position {
   color: var(--muted);
   margin: 1rem 0 0;
 }

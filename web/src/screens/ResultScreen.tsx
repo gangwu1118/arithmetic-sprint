@@ -8,19 +8,26 @@ import {
 
 type Props = {
   result: Result;
+  durationMs: number;
   starting: boolean;
   onPlayAgain: () => void;
   onBack: () => void;
 };
 
-export function ResultScreen({ result, starting, onPlayAgain, onBack }: Props) {
+export function ResultScreen({
+  result,
+  durationMs,
+  starting,
+  onPlayAgain,
+  onBack,
+}: Props) {
   return (
     <main>
       <h1>You solved {result.solved}</h1>
       <section className="card">
         <p className="big-number">
           {result.solved}
-          <span> in 60 seconds</span>
+          <span> in {durationMs / 1_000} seconds</span>
         </p>
         <p>
           {result.previousUsualPace === null

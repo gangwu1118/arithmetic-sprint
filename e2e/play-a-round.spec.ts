@@ -34,12 +34,14 @@ test('a new player plays a round with the keyboard and the keypad, and sees it i
   await expect(page.getByTestId('problem')).toBeVisible({ timeout: 10_000 });
 
   // Criterion 21: two answers with the keyboard...
-  for (const solved of [1, 2]) {
+  for (const next of [2, 3]) {
     const answer = await answerOnScreen(page);
     await page.waitForTimeout(HUMAN_PAUSE_MS);
     await page.keyboard.type(answer);
     await page.keyboard.press('Enter');
-    await expect(page.getByText(`${solved} solved`)).toBeVisible();
+    await expect(
+      page.getByText(`Problem ${next}`, { exact: true }),
+    ).toBeVisible();
   }
 
   // ...a wrong one, which keeps the problem...
@@ -49,14 +51,16 @@ test('a new player plays a round with the keyboard and the keypad, and sees it i
   await expect(page.getByText('Not quite. Try again.')).toBeVisible();
 
   // ...and two with the on-screen keypad.
-  for (const solved of [3, 4]) {
+  for (const next of [4, 5]) {
     const answer = await answerOnScreen(page);
     await page.waitForTimeout(HUMAN_PAUSE_MS);
     for (const digit of answer) {
       await page.getByRole('button', { name: digit, exact: true }).click();
     }
     await page.getByRole('button', { name: 'OK', exact: true }).click();
-    await expect(page.getByText(`${solved} solved`)).toBeVisible();
+    await expect(
+      page.getByText(`Problem ${next}`, { exact: true }),
+    ).toBeVisible();
   }
 
   // The round ends after its 60 seconds, and the server scores it.
@@ -73,6 +77,9 @@ test('a new player plays a round with the keyboard and the keypad, and sees it i
   await expect(page.getByText('problems a minute, usually')).toBeVisible();
   // Three answers by keyboard, two by keypad: a keyboard round.
   await expect(page.getByRole('cell', { name: 'Keyboard' })).toHaveCount(1);
+  await expect(
+    page.getByRole('columnheader', { name: 'Usual pace' }),
+  ).toBeVisible();
 });
 
 test('criterion 23: sample players are labelled, and the score is explained', async ({
@@ -96,6 +103,12 @@ test('criterion 22: a hidden page abandons the round, and nothing is saved', asy
   await page.getByRole('button', { name: 'Continue' }).click();
   await page.getByRole('button', { name: 'Start' }).click();
   await expect(page.getByTestId('problem')).toBeVisible({ timeout: 10_000 });
+
+  // A change of visibility that leaves the page visible changes nothing.
+  await page.evaluate(() =>
+    document.dispatchEvent(new Event('visibilitychange')),
+  );
+  await expect(page.getByTestId('problem')).toBeVisible();
 
   // A browser cannot be told to hide a tab, so the page is told it is hidden.
   await page.evaluate(() => {

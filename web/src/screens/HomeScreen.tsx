@@ -78,8 +78,9 @@ export function HomeScreen({
 
       <section className="card start">
         <p>
-          60 seconds. Solve as many as you can. Type the answer and press Enter,
-          or use the keypad. A wrong answer stays until you get it right.
+          Solve as many as you can before the time runs out. Type the answer and
+          press Enter, or use the keypad. A wrong answer stays until you get it
+          right.
         </p>
         <button
           type="button"
@@ -114,7 +115,10 @@ export function HomeScreen({
                     ? `${formatChange(summary.change)} since your first ${summary.paceWindow} (${formatPace(summary.startingPace)}).`
                     : `Your change shows after ${summary.roundsForChange} rounds: ${summary.roundsForChange - summary.roundsCompleted} to go.`}
                 </p>
-                <ProgressChart rounds={progress.rounds} />
+                <ProgressChart
+                  rounds={progress.rounds}
+                  paceWindow={summary.paceWindow}
+                />
               </>
             )}
             <p className="caveat">
@@ -151,6 +155,7 @@ export function HomeScreen({
                     <th scope="col">Day</th>
                     <th scope="col">Solved</th>
                     <th scope="col">Mistakes</th>
+                    <th scope="col">Usual pace</th>
                     <th scope="col">Input</th>
                   </tr>
                 </thead>
@@ -160,6 +165,7 @@ export function HomeScreen({
                       <td>{formatDay(round.localDay)}</td>
                       <td>{round.solved}</td>
                       <td>{round.mistakes}</td>
+                      <td>{formatPace(round.usualPace)}</td>
                       <td>
                         {round.inputType === 'touch' ? 'Keypad' : 'Keyboard'}
                       </td>

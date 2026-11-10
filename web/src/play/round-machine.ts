@@ -90,14 +90,16 @@ export function roundReducer(state: RoundState, event: RoundEvent): RoundState {
     case 'submit': {
       // Input after the round's time is ignored; the round is over.
       if (event.atMs > state.durationMs) return { ...state, phase: 'finished' };
-      if (state.draft === '') return state;
+      // Nothing typed, or every problem already solved.
+      if (state.draft === '' || state.current >= state.problems.length) {
+        return state;
+      }
 
       const answer = Number(state.draft);
       const right = answer === answerOf(state.problems[state.current]);
       const next = right ? state.current + 1 : state.current;
       return {
         ...state,
-        phase: next >= state.problems.length ? 'finished' : 'playing',
         current: next,
         draft: '',
         lastAnswerWrong: !right,

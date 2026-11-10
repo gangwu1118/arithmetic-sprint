@@ -4,7 +4,9 @@ import { chartGeometry } from './chart.ts';
 
 const SIZE = { width: 600, height: 220, padding: 30 };
 
-export function ProgressChart({ rounds }: { rounds: Progress['rounds'] }) {
+type Props = { rounds: Progress['rounds']; paceWindow: number };
+
+export function ProgressChart({ rounds, paceWindow }: Props) {
   const chart = chartGeometry(rounds, SIZE);
   const last = rounds.at(-1);
 
@@ -34,23 +36,30 @@ export function ProgressChart({ rounds }: { rounds: Progress['rounds'] }) {
           </g>
         ))}
         <path className="pace-line" d={chart.paceLine} />
-        {chart.dots.map((dot, i) => (
-          <circle
-            key={rounds[i].roundId}
-            className="dot"
-            cx={dot.x}
-            cy={dot.y}
-            r={5}
-          >
-            <title>
-              {formatDay(rounds[i].localDay)}: {rounds[i].solved} solved
-            </title>
-          </circle>
-        ))}
+        {chart.dots.map((dot, i) => {
+          const round = rounds[i];
+          const keypad = round.inputType === 'touch';
+          return (
+            <circle
+              key={round.roundId}
+              className={keypad ? 'dot keypad-round' : 'dot'}
+              cx={dot.x}
+              cy={dot.y}
+              r={5}
+            >
+              <title>
+                {formatDay(round.localDay)}: {round.solved} solved,{' '}
+                {keypad ? 'keypad' : 'keyboard'}
+              </title>
+            </circle>
+          );
+        })}
       </svg>
       <figcaption>
-        Each dot is one round. The line is your usual pace: the median of that
-        round and up to four before it, so one bad round barely moves it.
+        Each dot is one round: hollow for the keyboard, filled for the keypad,
+        because typing speed is part of the score. The line is your usual pace:
+        the median of that round and up to {paceWindow - 1} before it, so one
+        bad round barely moves it.
       </figcaption>
     </figure>
   );
