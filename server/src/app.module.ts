@@ -4,6 +4,7 @@ import { drizzle } from 'drizzle-orm/node-postgres';
 import { CommonModule } from './common/common.module.js';
 import { databaseUrl } from './config.js';
 import { HealthController } from './health/health.controller.js';
+import { PlayersModule } from './players/players.module.js';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { HealthController } from './health/health.controller.js';
     DrizzleModule.forRootAsync({
       useFactory: () => ({ drizzle, connection: databaseUrl() }),
     }),
+    PlayersModule,
   ],
   controllers: [HealthController],
 })
