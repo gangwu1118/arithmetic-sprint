@@ -3,6 +3,7 @@ import type { Problem } from './problems.js';
 import {
   scoreRound,
   secondsPerProblem,
+  toSeconds,
   type Attempt,
   type RoundScore,
   type ScoringOutcome,
@@ -32,17 +33,18 @@ function scoreOf(outcome: ScoringOutcome): RoundScore {
 }
 
 describe('criterion 5: the score is the number of problems solved, by replay', () => {
-  it('counts three right answers as three', () => {
+  it('counts three right answers as three, and a wrong one as a mistake', () => {
     const score = scoreOf(
       scoreRound(PROBLEMS, [
         attempt(0, 85, 2_000),
+        attempt(1, 44, 4_000),
         attempt(1, 45, 5_000),
         attempt(2, 56, 6_500),
       ]),
     );
 
     expect(score.solved).toBe(3);
-    expect(score.mistakes).toBe(0);
+    expect(score.mistakes).toBe(1);
     expect(score.tooFast).toBe(0);
   });
 
@@ -103,6 +105,25 @@ describe('criterion 7: a right answer under 300 ms is too fast', () => {
     expect(score.solved).toBe(1);
     expect(score.tooFast).toBe(0);
   });
+
+  it('measures from when the problem appeared, not from the start of the round', () => {
+    // Problem 1 appears at 5,000 ms and is answered 200 ms later.
+    const score = scoreOf(
+      scoreRound(PROBLEMS, [attempt(0, 85, 5_000), attempt(1, 45, 5_200)]),
+    );
+
+    expect(score.solved).toBe(1);
+    expect(score.tooFast).toBe(1);
+  });
+
+  it('counts a later problem answered exactly 300 ms after it appeared', () => {
+    const score = scoreOf(
+      scoreRound(PROBLEMS, [attempt(0, 85, 5_000), attempt(1, 45, 5_300)]),
+    );
+
+    expect(score.solved).toBe(2);
+    expect(score.tooFast).toBe(0);
+  });
 });
 
 describe('criterion 8: impossible attempts make the result invalid', () => {
@@ -126,6 +147,15 @@ describe('criterion 8: impossible attempts make the result invalid', () => {
     expect(
       scoreRound(PROBLEMS, [attempt(0, 84, 2_000), attempt(0, 85, 1_500)]),
     ).toEqual({ valid: false, reason: 'time_goes_back', attemptIndex: 1 });
+  });
+
+  it('accepts two attempts at the same time', () => {
+    const score = scoreOf(
+      scoreRound(PROBLEMS, [attempt(0, 84, 2_000), attempt(0, 85, 2_000)]),
+    );
+
+    expect(score.mistakes).toBe(1);
+    expect(score.solved).toBe(1);
   });
 
   it("rejects a time above the round's 60,000 ms", () => {
@@ -185,6 +215,12 @@ describe('criterion 9: seconds per operation and the three slowest problems', ()
       { problemIndex: 3, problem: PROBLEMS[3], answer: 12, ms: 4_000 },
       { problemIndex: 4, problem: PROBLEMS[4], answer: 21, ms: 3_000 },
     ]);
+  });
+
+  it('turns milliseconds into seconds, to one decimal place', () => {
+    expect(toSeconds(4_000)).toBe(4);
+    expect(toSeconds(1_250)).toBe(1.3);
+    expect(toSeconds(1_249)).toBe(1.2);
   });
 
   it('turns totals into seconds per problem, to one decimal place', () => {

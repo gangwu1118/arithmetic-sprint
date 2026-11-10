@@ -53,13 +53,18 @@ export function emptyTotals(): OperationTotals {
   };
 }
 
+/** Milliseconds as seconds, to one decimal place, as the API reports them. */
+export function toSeconds(ms: number): number {
+  return Math.round(ms / 100) / 10;
+}
+
 /** Average seconds per solved problem, to one decimal place. */
 export function secondsPerProblem(totals: {
   solved: number;
   totalMs: number;
 }): number | null {
   if (totals.solved === 0) return null;
-  return Math.round(totals.totalMs / totals.solved / 100) / 10;
+  return toSeconds(totals.totalMs / totals.solved);
 }
 
 /**

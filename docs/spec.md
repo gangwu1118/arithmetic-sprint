@@ -243,7 +243,7 @@ sign-in: the brief does not ask for it. A product would use real sign-in
 
 - An error raised by this application has the body
   `{ "code": "...", "message": "..." }`. A request whose shape is wrong
-  (a missing field, a wrong type, an unknown time zone) gets
+  (a missing field, a wrong type, a time zone that is not an IANA name) gets
   `invalid_request`, with an `issues` list that names each field.
 - A round that belongs to another player is reported as 404
   `round_not_found`, the same as a round that does not exist. A round id
@@ -434,6 +434,5 @@ reset` empties the tables and seeds again.
 **Request shapes**
 
 25. A request with the wrong shape gets 400 `invalid_request` and changes
-    nothing: a display name that is empty or longer than 40 characters, an
-    unknown time zone, an unknown input type, a round id that is not a
+    nothing: a display name that is empty or longer than 40 characters, a time zone that is not an IANA name (such as `+10:00`), an unknown input type, a round id that is not a
     UUID, or an attempt field that is not a whole number of at least 0.

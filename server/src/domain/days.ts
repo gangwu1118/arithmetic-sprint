@@ -5,15 +5,19 @@ const MS_PER_DAY = 86_400_000;
 
 /**
  * The time zone's usual spelling, for example 'Australia/Sydney' for
- * 'australia/sydney', or null when the runtime does not know the zone.
+ * 'australia/sydney', or null when it is not an IANA name the runtime knows.
+ * Fixed offsets such as '+10:00' are refused: browsers send IANA names, and
+ * an offset would ignore daylight saving.
  */
 export function canonicalTimeZone(timeZone: string): string | null {
+  let name: string;
   try {
-    return Intl.DateTimeFormat('en-US', { timeZone }).resolvedOptions()
+    name = Intl.DateTimeFormat('en-US', { timeZone }).resolvedOptions()
       .timeZone;
   } catch {
     return null;
   }
+  return /^[+-]/.test(name) ? null : name;
 }
 
 /** The calendar date at an instant, in a time zone. */

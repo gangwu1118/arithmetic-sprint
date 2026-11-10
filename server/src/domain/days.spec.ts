@@ -43,6 +43,11 @@ describe('time zone names', () => {
     expect(canonicalTimeZone('Mars/Olympus_Mons')).toBeNull();
     expect(canonicalTimeZone('')).toBeNull();
   });
+
+  it('rejects fixed offsets, which are not IANA names and ignore daylight saving', () => {
+    expect(canonicalTimeZone('+10:00')).toBeNull();
+    expect(canonicalTimeZone('-05:00')).toBeNull();
+  });
 });
 
 describe('criterion 16: a week runs from Monday to Sunday', () => {
