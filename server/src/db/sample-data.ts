@@ -65,8 +65,8 @@ export const SAMPLE_PLAYERS: SamplePlayer[] = [
 ];
 
 const SAMPLE_TIME_ZONE = 'Australia/Sydney';
-const HOUR_MS = 3_600_000;
-const DAY_MS = 24 * HOUR_MS;
+const MINUTE_MS = 60_000;
+const DAY_MS = 24 * 60 * MINUTE_MS;
 
 /** Simulated play: each problem takes about `seconds`, with some mistakes. */
 function simulateAttempts(
@@ -128,10 +128,13 @@ export function sampleHistory(sample: SamplePlayer, now: Date): SampleRound[] {
     if (!outcome.valid) {
       throw new Error(`Simulated round ${i} is not valid: ${outcome.reason}`);
     }
-    // Spread over the span, at a different hour each time, ending today.
+    // Spread over the span, ending today. Each round is a few minutes later
+    // in its day than the one before, so two on one day stay in order.
     const daysBack = Math.round(sample.spanDays * (1 - progress));
     const completedAt = new Date(
-      now.getTime() - daysBack * DAY_MS - (1 + (i % 5)) * HOUR_MS,
+      now.getTime() -
+        daysBack * DAY_MS -
+        (sample.roundCount - i) * 7 * MINUTE_MS,
     );
     history.push({
       problems,
@@ -148,30 +151,33 @@ export function sampleHistory(sample: SamplePlayer, now: Date): SampleRound[] {
 
 /** Replaces the sample players and their rounds. Other players are kept. */
 export async function seedSampleData(db: Database, now: Date): Promise<void> {
-  for (const sample of SAMPLE_PLAYERS) {
-    const keyHash = hashPlayerKey(sample.key);
-    await db.delete(players).where(eq(players.keyHash, keyHash));
-    const [player] = await db
-      .insert(players)
-      .values({ displayName: sample.displayName, keyHash, isSample: true })
-      .returning();
-    await db.insert(rounds).values(
-      sampleHistory(sample, now).map((round) => ({
-        playerId: player.id,
-        problems: round.problems,
-        durationMs: ROUND_DURATION_MS,
-        issuedAt: round.issuedAt,
-        completedAt: round.completedAt,
-        attempts: round.attempts,
-        solved: round.score.solved,
-        mistakes: round.score.mistakes,
-        tooFast: round.score.tooFast,
-        operationStats: round.score.operations,
-        inputType: sample.inputType,
-        localDay: round.localDay,
-        timeZone: SAMPLE_TIME_ZONE,
-        scoringVersion: SCORING_VERSION,
-      })),
-    );
-  }
+  // One transaction: either both sample players are replaced, or nothing is.
+  await db.transaction(async (tx) => {
+    for (const sample of SAMPLE_PLAYERS) {
+      const keyHash = hashPlayerKey(sample.key);
+      await tx.delete(players).where(eq(players.keyHash, keyHash));
+      const [player] = await tx
+        .insert(players)
+        .values({ displayName: sample.displayName, keyHash, isSample: true })
+        .returning();
+      await tx.insert(rounds).values(
+        sampleHistory(sample, now).map((round) => ({
+          playerId: player.id,
+          problems: round.problems,
+          durationMs: ROUND_DURATION_MS,
+          issuedAt: round.issuedAt,
+          completedAt: round.completedAt,
+          attempts: round.attempts,
+          solved: round.score.solved,
+          mistakes: round.score.mistakes,
+          tooFast: round.score.tooFast,
+          operationStats: round.score.operations,
+          inputType: sample.inputType,
+          localDay: round.localDay,
+          timeZone: SAMPLE_TIME_ZONE,
+          scoringVersion: SCORING_VERSION,
+        })),
+      );
+    }
+  });
 }

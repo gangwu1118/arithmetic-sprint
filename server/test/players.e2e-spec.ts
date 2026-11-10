@@ -49,6 +49,11 @@ describe('players', () => {
         playerKey: string;
       };
 
+      expect(Object.keys(body.player).sort()).toEqual([
+        'displayName',
+        'id',
+        'isSample',
+      ]);
       expect(body.player.displayName).toBe('Ada');
       expect(body.player.isSample).toBe(false);
 

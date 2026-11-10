@@ -134,7 +134,11 @@ export class RoundsService {
     // Another result for this round was stored between the check and now.
     if (!stored) throw alreadyCompleted();
 
-    const scores = await this.rounds.completedScores(player.id);
+    // The usual pace before this round comes from the player's other
+    // completed rounds, so it does not matter where this one sorts.
+    const earlier = (await this.rounds.completedRoundScores(player.id))
+      .filter((other) => other.roundId !== round.id)
+      .map((other) => other.solved);
     return {
       roundId: round.id,
       completedAt: now.toISOString(),
@@ -142,8 +146,8 @@ export class RoundsService {
       solved: score.solved,
       mistakes: score.mistakes,
       tooFast: score.tooFast,
-      usualPace: usualPace(scores) ?? score.solved,
-      previousUsualPace: usualPace(scores.slice(0, -1)),
+      usualPace: usualPace([...earlier, score.solved]) ?? score.solved,
+      previousUsualPace: usualPace(earlier),
       operations: operationPaces([score]),
       slowest: score.slowest.map((solved) => ({
         ...solved.problem,

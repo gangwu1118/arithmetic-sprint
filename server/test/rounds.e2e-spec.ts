@@ -193,6 +193,67 @@ describe('rounds', () => {
     });
   });
 
+  describe('criterion 8: every kind of impossible attempt, over HTTP', () => {
+    it.each([
+      [
+        'a time earlier than the attempt before it',
+        (p: Problem[]) => [
+          { problemIndex: 0, answer: answerOf(p[0]) + 1, atMs: 3_000 },
+          { problemIndex: 0, answer: answerOf(p[0]), atMs: 2_000 },
+        ],
+        'time_goes_back',
+      ],
+      [
+        "a time past the round's 60,000 ms",
+        (p: Problem[]) => [
+          { problemIndex: 0, answer: answerOf(p[0]), atMs: 60_001 },
+        ],
+        'time_outside_round',
+      ],
+    ])('rejects %s', async (_label, attemptsFor, reason) => {
+      const round = await issueRound(ada.key);
+      testApp.clock.advance(COUNTDOWN_AND_ROUND_MS);
+
+      const response = await submit(
+        ada.key,
+        round.id,
+        resultBody(attemptsFor(round.problems)),
+      ).expect(400);
+
+      expect(response.body).toMatchObject({ code: 'invalid_attempts', reason });
+      expect((await storedRound(round.id)).completedAt).toBeNull();
+    });
+
+    it('accepts an answer at exactly 60,000 ms', async () => {
+      const round = await issueRound(ada.key);
+      testApp.clock.advance(COUNTDOWN_AND_ROUND_MS);
+      const attempts = [
+        { problemIndex: 0, answer: answerOf(round.problems[0]), atMs: 60_000 },
+      ];
+
+      const response = await submit(
+        ada.key,
+        round.id,
+        resultBody(attempts),
+      ).expect(201);
+
+      expect(response.body).toMatchObject({ result: { solved: 1 } });
+    });
+
+    it('accepts an empty list of attempts as a score of 0', async () => {
+      const round = await issueRound(ada.key);
+      testApp.clock.advance(COUNTDOWN_AND_ROUND_MS);
+
+      const response = await submit(ada.key, round.id, resultBody([])).expect(
+        201,
+      );
+
+      expect(response.body).toMatchObject({
+        result: { solved: 0, mistakes: 0, usualPace: 0 },
+      });
+    });
+  });
+
   describe("criterion 10: when a result may arrive, by the server's clock", () => {
     it('rejects a result before 60 seconds, then accepts it at 60', async () => {
       const round = await issueRound(ada.key);
@@ -260,6 +321,46 @@ describe('rounds', () => {
       expect(forAdasRound.body).toEqual(forNoRound.body);
       expect(forAdasRound.body).toMatchObject({ code: 'round_not_found' });
       expect((await storedRound(round.id)).completedAt).toBeNull();
+    });
+  });
+
+  describe("the usual pace in a result counts only this player's completed rounds", () => {
+    it("criterion 14: leaves out another player's scores", async () => {
+      const bens = await issueRound(ben.key);
+      testApp.clock.advance(COUNTDOWN_AND_ROUND_MS);
+      await submit(
+        ben.key,
+        bens.id,
+        resultBody(rightAnswers(bens.problems, 10)),
+      ).expect(201);
+
+      const adas = await issueRound(ada.key);
+      testApp.clock.advance(COUNTDOWN_AND_ROUND_MS);
+      const response = await submit(
+        ada.key,
+        adas.id,
+        resultBody(rightAnswers(adas.problems, 3)),
+      ).expect(201);
+
+      expect(response.body).toMatchObject({
+        result: { usualPace: 3, previousUsualPace: null },
+      });
+    });
+
+    it('criterion 19: leaves out a round that was never completed', async () => {
+      await issueRound(ada.key);
+      const round = await issueRound(ada.key);
+      testApp.clock.advance(COUNTDOWN_AND_ROUND_MS);
+
+      const response = await submit(
+        ada.key,
+        round.id,
+        resultBody(rightAnswers(round.problems, 3)),
+      ).expect(201);
+
+      expect(response.body).toMatchObject({
+        result: { usualPace: 3, previousUsualPace: null },
+      });
     });
   });
 

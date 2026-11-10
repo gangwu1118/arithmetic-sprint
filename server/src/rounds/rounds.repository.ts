@@ -72,13 +72,18 @@ export class RoundsRepository {
     return updated.length === 1;
   }
 
-  /** The scores of the player's completed rounds, oldest first. */
-  async completedScores(playerId: string): Promise<number[]> {
+  /** The score of each of the player's completed rounds, oldest first. */
+  async completedRoundScores(
+    playerId: string,
+  ): Promise<{ roundId: string; solved: number }[]> {
     const rows = await this.db
-      .select({ solved: rounds.solved })
+      .select({ roundId: rounds.id, solved: rounds.solved })
       .from(rounds)
       .where(and(eq(rounds.playerId, playerId), isNotNull(rounds.completedAt)))
       .orderBy(asc(rounds.completedAt));
-    return rows.map((row) => row.solved ?? 0);
+    return rows.map((row) => ({
+      roundId: row.roundId,
+      solved: row.solved ?? 0,
+    }));
   }
 }
