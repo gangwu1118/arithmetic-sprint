@@ -157,7 +157,7 @@ Tests were written before the code they test: each module was run first
 against an empty or naive version, to see its tests fail for the right
 reason (the one exception, the sample data, is recorded in the AI notes).
 Then every rule was **broken on purpose** at least once (37 breaks covering
-33 rules, plus 7 checks of the gate and hooks, all listed in
+33 rules, plus 8 checks of the gate and hooks, all listed in
 [docs/ai-notes.md](docs/ai-notes.md)) to check that a test with the rule's
 name fails. After each layer, a separate read-only agent reviewed
 the code against the spec; its findings are in the AI notes too.
@@ -280,7 +280,7 @@ for the agent.
   NestJS feature.
 - **Tests that can fail.** Test first, then every rule broken on purpose.
 
-**Where it was wrong.** [docs/ai-notes.md](docs/ai-notes.md) has 17
+**Where it was wrong.** [docs/ai-notes.md](docs/ai-notes.md) has 19
 entries, each with what caught it. Three examples:
 
 - Its first spec rule, "no problem repeats the one before", could only be
