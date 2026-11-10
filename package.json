@@ -21,15 +21,17 @@
     "reset": "npm run db:migrate && npm run db:reset -w server",
     "check": "bash scripts/check.sh",
     "check:full": "bash scripts/check.sh --full",
-    "typecheck": "npm run typecheck --workspaces",
-    "lint": "npm run lint --workspaces",
+    "typecheck": "npm run typecheck --workspaces && tsc --noEmit -p tsconfig.json",
+    "lint": "npm run lint --workspaces && oxlint e2e playwright.config.ts",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "npm run test --workspaces",
     "test:e2e": "npm run test:e2e -w server",
+    "test:browser": "playwright test",
     "prepare": "git config core.hooksPath .githooks || true"
   },
   "devDependencies": {
+    "@playwright/test": "^1.65.0",
     "concurrently": "^10.0.7",
     "prettier": "^3.9.10"
   }

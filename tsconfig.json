@@ -1,0 +1,14 @@
+{
+  // Type-checks what lives at the repository root: the browser test and its
+  // configuration. The server and the web app have their own tsconfig.
+  "compilerOptions": {
+    "target": "ES2023",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "types": ["node"]
+  },
+  "include": ["e2e", "playwright.config.ts"]
+}
