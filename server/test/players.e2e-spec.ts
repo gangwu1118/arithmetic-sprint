@@ -10,8 +10,12 @@ import {
 } from './test-database.js';
 
 // Every route that needs a player key (docs/spec.md, section 8).
+const A_ROUND_ID = '00000000-0000-4000-8000-000000000000';
+
 const PROTECTED_ROUTES: [method: 'get' | 'post', path: string][] = [
   ['get', '/api/me'],
+  ['post', '/api/rounds'],
+  ['post', `/api/rounds/${A_ROUND_ID}/result`],
 ];
 
 describe('players', () => {
