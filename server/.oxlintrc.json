@@ -6,5 +6,29 @@
   },
   "env": {
     "node": true
-  }
+  },
+  "overrides": [
+    {
+      "files": ["src/domain/**"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "group": [
+                  "@nestjs/*",
+                  "drizzle-orm",
+                  "drizzle-orm/*",
+                  "pg",
+                  "express"
+                ],
+                "message": "src/domain holds the rules of the game as pure functions: no framework, no database (AGENTS.md)."
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
 }
