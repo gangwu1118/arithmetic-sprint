@@ -12,10 +12,13 @@
     "node": ">=22.12"
   },
   "scripts": {
-    "setup": "npm install && npm run db:up",
+    "setup": "npm install && npm run db:up && npm run db:migrate && npm run seed",
     "dev": "concurrently -n api,web -c blue,green \"npm run start:dev -w server\" \"npm run dev -w web\"",
     "db:up": "docker compose up -d --wait",
     "db:down": "docker compose down",
+    "db:migrate": "npm run db:migrate -w server",
+    "seed": "npm run db:seed -w server",
+    "reset": "npm run db:migrate && npm run db:reset -w server",
     "check": "bash scripts/check.sh",
     "check:full": "bash scripts/check.sh --full",
     "typecheck": "npm run typecheck --workspaces",
