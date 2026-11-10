@@ -74,7 +74,10 @@ Every number in this section is defined once, in
 - A round is issued with 120 problems, far more than anyone solves in a
   minute. They come in blocks of four. Each block holds one problem of
   each operation, in random order, so the mix is the same in every round.
-- No problem is identical to the one before it.
+- Two problems in a row never have the same operation, so no problem is
+  identical to the one before it. When a block would start with the
+  operation that ended the block before, that operation swaps places with
+  a random later one.
 - The problems come from an injected random source, so the same source
   gives the same problems.
 
@@ -357,7 +360,8 @@ reset` empties the tables and seeds again.
 2. Additions use two numbers from 2 to 50, and multiplications two
    numbers from 2 to 12. Subtractions and divisions are those in reverse.
    Every answer is a whole number of at least 2.
-3. No problem is identical to the one before it.
+3. Two problems in a row never have the same operation, so no problem
+   repeats the one before it.
 4. The same random source gives the same problems.
 
 **Scoring**

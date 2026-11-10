@@ -31,7 +31,7 @@ describe('randomInt', () => {
     const seen = new Set<number>();
     for (let i = 0; i < 1_000; i += 1) seen.add(randomInt(random, 2, 4));
 
-    expect([...seen].sort()).toEqual([2, 3, 4]);
+    expect([...seen].sort((x, y) => x - y)).toEqual([2, 3, 4]);
   });
 });
 
