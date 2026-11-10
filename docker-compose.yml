@@ -1,0 +1,23 @@
+# The local database. The names and the port match the defaults in
+# server/src/config.ts, so no .env file is needed for development.
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: sprint
+      POSTGRES_PASSWORD: sprint
+      POSTGRES_DB: sprint
+    ports:
+      # Only this machine can reach it, on a port that will not clash
+      # with a PostgreSQL already running on 5432.
+      - '127.0.0.1:54331:5432'
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U sprint -d sprint']
+      interval: 2s
+      timeout: 3s
+      retries: 20
+
+volumes:
+  db-data:

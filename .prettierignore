@@ -1,0 +1,6 @@
+node_modules
+dist
+coverage
+package-lock.json
+server/drizzle
+docs/design-note.md
