@@ -43,6 +43,8 @@ What has not been exercised is listed at the end.
 | 13  | To split one commit into two, it took the players module out of the app but left the player tests in the working tree, and the full gate failed                                                                                                                                                                                                                                                                                                                                               | The gate itself. It runs on the working tree, not on what is being committed                                                                              | The player files were set aside with `git stash` while the first commit was checked on its own, then brought back for the second                                                                                                                  |
 | 14  | The sample-data tests were written together with the code, not before it, against the way of working in `AGENTS.md`                                                                                                                                                                                                                                                                                                                                                                           | Its own review of the step before reporting it                                                                                                            | Said so in the commit message, then broke the simulation three ways to make sure the tests can fail; each break was caught                                                                                                                        |
 | 15  | Tests passed that would also pass with rules missing from the HTTP layer: only one kind of impossible attempt was tested over HTTP; nothing tested that a result losing the race to be stored gets 409; the query behind the usual pace in a result was not tested for its player filter or for leaving out unfinished rounds. The usual pace before a round assumed that round sorts last                                                                                                    | The `spec-reviewer` instructions, run by a read-only subagent on the HTTP layer                                                                           | Tests for each gap, each seen to fail against the wrong version; the pace before a round is now worked out from the player's other rounds, by id (commit `9a88431`)                                                                               |
+| 16  | The API read its port from `PORT`. The tool that starts the development servers sets `PORT` for the web server, so the API started on the web's port number (one on IPv4, one on IPv6), and the web's proxy found no API                                                                                                                                                                                                                                                                      | Opening the app in the browser preview: the page loaded but every API call failed, and the log showed both servers on 5193                                | The API reads `API_PORT` and `API_HOST`; a test checks it ignores `PORT` and `HOST` (commit `0a57b11`)                                                                                                                                            |
+| 17  | The web app showed a 'solved' count it worked out itself, which could differ from the server's score when an answer was too fast; it repeated rules as text (the pace window, the goal, the round length); the chart did not mark keypad rounds, as the design note says; the player list did not label sample players; Ctrl and Cmd shortcuts were swallowed and a held digit repeated; and a round with every problem solved would have been sent before the server's 60 seconds            | The `spec-reviewer` instructions, run by a read-only subagent on the web app                                                                              | Each fixed; the browser test now checks the problem position, the usual pace column, and that a page that stays visible keeps the round (commit `491b1ac`)                                                                                        |
 
 ## Rules broken on purpose
 
@@ -116,6 +118,25 @@ first, which stops two results that arrive one after the other. Only the
 tests on the query itself caught the gap that two results arriving
 together would leave. That is why the test plan tests that query
 directly.
+
+### The web app
+
+The state machine of a round in the browser, with its unit tests, and two
+rules with the browser test.
+
+| The rule                                   | The edit                                                  | The tests that failed                                                                     |
+| ------------------------------------------ | --------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| A hidden page abandons the round           | The check for a round in play removed                     | "abandons a round in play, with nothing to send", "abandons a round during the countdown" |
+| Input after the 60 seconds is ignored      | The time check on an answer removed                       | "ignores an answer after the 60 seconds, and ends the round"                              |
+| A wrong answer keeps the problem           | Move on after any answer                                  | "keeps the problem after a wrong answer, marks it, and clears the entry"                  |
+| Nothing is sent before the round has ended | Send unless abandoned                                     | "sends the attempts, and nothing before the round has ended"                              |
+| Sample players are labelled (browser)      | The "Sample data" badge renamed                           | The browser test for criterion 23                                                         |
+| A hidden page abandons the round (browser) | The page's `visibilitychange` listener made to do nothing | The browser test for criterion 22                                                         |
+
+While the round was played by hand in the preview, the automation sent
+an answer 33 ms after its problem appeared. The server counted it as too
+fast, as section 4.2 says: the rule worked on input no person could
+produce.
 
 ## Not exercised yet
 
