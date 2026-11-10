@@ -13,10 +13,12 @@ export function databaseUrl(): string {
   return process.env.DATABASE_URL ?? DEFAULT_DATABASE_URL;
 }
 
+// API_PORT and API_HOST, not PORT and HOST: tools that start the dev
+// servers set PORT for the web server, and the API must not follow it.
 export function port(): number {
-  return Number(process.env.PORT ?? DEFAULT_PORT);
+  return Number(process.env.API_PORT ?? DEFAULT_PORT);
 }
 
 export function host(): string {
-  return process.env.HOST ?? DEFAULT_HOST;
+  return process.env.API_HOST ?? DEFAULT_HOST;
 }
