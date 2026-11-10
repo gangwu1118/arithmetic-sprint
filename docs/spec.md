@@ -345,7 +345,8 @@ reset` empties the tables and seeds again.
   provider that holds its queries: `players/`, `rounds/`, `progress/`.
   Every repository method takes the player's id.
 - A guard turns the player key into the current player before any
-  protected route runs. A parameter decorator hands that player to the
+  protected route runs. It is global: every route needs a key unless it is
+  marked public, so a new route cannot forget it. A parameter decorator hands that player to the
   controller.
 - The clock and the random source are providers, so tests replace them.
 - `web/` is the React app. It shows problems, records attempts and draws

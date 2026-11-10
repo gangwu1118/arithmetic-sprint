@@ -104,25 +104,25 @@ After a rule is built, it is broken once with the smallest possible edit,
 to see the named test fail. The result goes in the table "Rules broken on
 purpose" in [ai-notes.md](ai-notes.md).
 
-| The rule                                       | The edit                                                  | The test that must fail                                       |
-| ---------------------------------------------- | --------------------------------------------------------- | ------------------------------------------------------------- |
-| Each block of four has every operation         | Pick each operation at random                             | `problems.spec.ts`, criterion 1                               |
-| A subtraction is an addition in reverse        | Use two independent numbers                               | `problems.spec.ts`, criterion 2                               |
-| Two problems in a row never share an operation | Remove the swap at the start of a block                   | `problems.spec.ts`, criterion 3                               |
-| A wrong answer keeps the problem               | Move on after a wrong answer                              | `scoring.spec.ts`, criterion 6                                |
-| A right answer at exactly 300 ms counts        | Change `<` to `<=`                                        | `scoring.spec.ts`, criterion 7                                |
-| An attempt must be for the current problem     | Remove the check                                          | `scoring.spec.ts`, criterion 8                                |
-| A time above the round's 60,000 ms is rejected | Remove the check                                          | `scoring.spec.ts`, criterion 8                                |
-| A result cannot arrive before 60 seconds       | Change `<` to `<=`, then remove the check                 | `plausibility.spec.ts` and `rounds.e2e-spec.ts`, criterion 10 |
-| A round accepts one result                     | Remove `completed_at is null` from the update             | `rounds.repository.e2e-spec.ts`, criterion 11                 |
-| Only the hash of the key is stored             | Store the key                                             | `players.e2e-spec.ts`, criterion 12                           |
-| Protected routes need a key                    | Remove the guard from each controller in turn             | `players.e2e-spec.ts`, criterion 13                           |
-| A round is looked up for its own player        | Remove the player id from the lookup                      | `rounds.e2e-spec.ts`, criterion 14                            |
-| Progress is read for its own player            | Remove the player id from the progress query              | `progress.e2e-spec.ts`, criterion 14                          |
-| The day is the player's local day              | Use the UTC date                                          | `days.spec.ts`, criterion 15                                  |
-| The week starts on Monday                      | Start it on Sunday                                        | `days.spec.ts`, criterion 16                                  |
-| Usual pace is a median                         | Use the mean                                              | `progress.spec.ts`, criterion 17                              |
-| Abandoned rounds are left out                  | Remove `completed_at is not null` from the progress query | `progress.e2e-spec.ts`, criterion 19                          |
+| The rule                                       | The edit                                                           | The test that must fail                                       |
+| ---------------------------------------------- | ------------------------------------------------------------------ | ------------------------------------------------------------- |
+| Each block of four has every operation         | Pick each operation at random                                      | `problems.spec.ts`, criterion 1                               |
+| A subtraction is an addition in reverse        | Use two independent numbers                                        | `problems.spec.ts`, criterion 2                               |
+| Two problems in a row never share an operation | Remove the swap at the start of a block                            | `problems.spec.ts`, criterion 3                               |
+| A wrong answer keeps the problem               | Move on after a wrong answer                                       | `scoring.spec.ts`, criterion 6                                |
+| A right answer at exactly 300 ms counts        | Change `<` to `<=`                                                 | `scoring.spec.ts`, criterion 7                                |
+| An attempt must be for the current problem     | Remove the check                                                   | `scoring.spec.ts`, criterion 8                                |
+| A time above the round's 60,000 ms is rejected | Remove the check                                                   | `scoring.spec.ts`, criterion 8                                |
+| A result cannot arrive before 60 seconds       | Change `<` to `<=`, then remove the check                          | `plausibility.spec.ts` and `rounds.e2e-spec.ts`, criterion 10 |
+| A round accepts one result                     | Remove `completed_at is null` from the update                      | `rounds.repository.e2e-spec.ts`, criterion 11                 |
+| Only the hash of the key is stored             | Store the key                                                      | `players.e2e-spec.ts`, criterion 12                           |
+| Protected routes need a key                    | Remove the global guard; then mark one protected controller public | `players.e2e-spec.ts`, criterion 13                           |
+| A round is looked up for its own player        | Remove the player id from the lookup                               | `rounds.e2e-spec.ts`, criterion 14                            |
+| Progress is read for its own player            | Remove the player id from the progress query                       | `progress.e2e-spec.ts`, criterion 14                          |
+| The day is the player's local day              | Use the UTC date                                                   | `days.spec.ts`, criterion 15                                  |
+| The week starts on Monday                      | Start it on Sunday                                                 | `days.spec.ts`, criterion 16                                  |
+| Usual pace is a median                         | Use the mean                                                       | `progress.spec.ts`, criterion 17                              |
+| Abandoned rounds are left out                  | Remove `completed_at is not null` from the progress query          | `progress.e2e-spec.ts`, criterion 19                          |
 
 ## 7. Not tested, and why
 
