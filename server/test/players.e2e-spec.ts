@@ -16,6 +16,7 @@ const PROTECTED_ROUTES: [method: 'get' | 'post', path: string][] = [
   ['get', '/api/me'],
   ['post', '/api/rounds'],
   ['post', `/api/rounds/${A_ROUND_ID}/result`],
+  ['get', '/api/progress?timeZone=UTC'],
 ];
 
 describe('players', () => {

@@ -5,6 +5,7 @@ import { CommonModule } from './common/common.module.js';
 import { databaseUrl } from './config.js';
 import { HealthController } from './health/health.controller.js';
 import { PlayersModule } from './players/players.module.js';
+import { ProgressModule } from './progress/progress.module.js';
 import { RoundsModule } from './rounds/rounds.module.js';
 
 @Module({
@@ -18,6 +19,7 @@ import { RoundsModule } from './rounds/rounds.module.js';
     }),
     PlayersModule,
     RoundsModule,
+    ProgressModule,
   ],
   controllers: [HealthController],
 })
