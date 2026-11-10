@@ -11,8 +11,9 @@ disagree, one of them is fixed in the same commit.
 2. **Use the whole stack only for what the whole stack can prove:** who
    may see what, one result per round, and the conditions written in SQL.
    Those get HTTP tests against a real PostgreSQL.
-3. **One browser test,** for the one path that matters most: a person
-   plays a round and sees it in their progress.
+3. **One browser test file,** for the one path that matters most: a person
+   plays a round and sees it in their progress. Two short checks sit beside
+   it, for the sample label (criterion 23) and a hidden page (criterion 22).
 4. **Test first.** A test is written before its code and is seen to fail
    for the right reason.
 5. **A test that has never failed proves nothing.** Each rule is broken
@@ -27,7 +28,7 @@ disagree, one of them is fixed in the same commit.
 | ------- | ------------------------------------------------ | ------------------------------------------------------------------- | ---------------------------- | ----------------------------------------- |
 | Unit    | Vitest                                           | Next to the code: `server/src/**/*.spec.ts`, `web/src/**/*.test.ts` | Nothing                      | `npm run check`, before every commit      |
 | HTTP    | Vitest and supertest against the real NestJS app | `server/test/*.e2e-spec.ts`                                         | PostgreSQL (`npm run db:up`) | `npm run check:full`                      |
-| Browser | Playwright, one test                             | `e2e/`                                                              | The app running, seeded data | `npm run test:browser`, before handing in |
+| Browser | Playwright, one file                             | `e2e/`                                                              | The app running, seeded data | `npm run test:browser`, before handing in |
 
 NestJS calls its HTTP tests "e2e", and the file names keep that. In this
 plan "browser test" means the real end-to-end test.
