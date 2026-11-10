@@ -1,28 +1,22 @@
-import type { INestApplication } from '@nestjs/common';
-import request from 'supertest';
-import type { App } from 'supertest/types.js';
 import { afterAll, beforeAll, describe, it } from 'vitest';
-import { createTestApp } from './test-app.js';
+import { createTestApp, type TestApp } from './test-app.js';
 
 describe('GET /api/health', () => {
-  let app: INestApplication<App>;
+  let testApp: TestApp;
 
   beforeAll(async () => {
-    app = await createTestApp();
+    testApp = await createTestApp();
   });
 
   afterAll(async () => {
-    await app.close();
+    await testApp.app.close();
   });
 
-  it('answers ok when the database is reachable', async () => {
-    await request(app.getHttpServer())
-      .get('/api/health')
-      .expect(200)
-      .expect({ ok: true });
+  it('answers ok when the database is reachable, with no player key', async () => {
+    await testApp.http().get('/api/health').expect(200).expect({ ok: true });
   });
 
   it('is served under the /api prefix only', async () => {
-    await request(app.getHttpServer()).get('/health').expect(404);
+    await testApp.http().get('/health').expect(404);
   });
 });

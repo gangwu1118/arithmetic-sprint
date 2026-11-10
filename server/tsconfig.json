@@ -20,5 +20,11 @@
     "strictPropertyInitialization": false,
     "types": ["node"]
   },
-  "include": ["src", "test", "vitest.config.ts", "vitest.config.e2e.ts"]
+  "include": [
+    "src",
+    "test",
+    "vitest.config.ts",
+    "vitest.config.e2e.ts",
+    "drizzle.config.ts"
+  ]
 }

@@ -2,7 +2,9 @@ import { Controller, Get } from '@nestjs/common';
 import { InjectDrizzle } from '@nestjs/drizzle';
 import { sql } from 'drizzle-orm';
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
+import { Public } from '../common/public.decorator.js';
 
+@Public()
 @Controller('health')
 export class HealthController {
   constructor(
