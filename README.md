@@ -266,7 +266,7 @@ for the agent.
 **How the agent was kept in check.**
 
 - **Contract first.** The design note, spec and test plan were written and
-  confirmed before any code; the code was built to them.
+  confirmed before any game code; the code was built to them.
 - **One gate.** `npm run check` runs before every commit through a git hook,
   for the agent and for people alike.
 - **Rules and tools in the repository:** [AGENTS.md](AGENTS.md) (the rules
