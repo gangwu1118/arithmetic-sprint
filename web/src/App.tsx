@@ -1,39 +1,115 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
+import {
+  api,
+  ApiError,
+  type Attempt,
+  type InputType,
+  type Result,
+  type Round,
+} from './api.ts';
+import { PlayScreen } from './play/PlayScreen.tsx';
+import { HomeScreen } from './screens/HomeScreen.tsx';
+import { PlayersScreen } from './screens/PlayersScreen.tsx';
+import { ResultScreen } from './screens/ResultScreen.tsx';
+import type { SavedPlayer } from './storage.ts';
 
-type ApiState = 'checking' | 'up' | 'down';
+type Screen =
+  | { name: 'players' }
+  | { name: 'home' }
+  | { name: 'play'; round: Round }
+  | { name: 'result'; result: Result };
 
-const label: Record<ApiState, string> = {
-  checking: 'checking…',
-  up: 'reachable',
-  down: 'not reachable',
-};
+function messageOf(error: unknown): string {
+  return error instanceof ApiError
+    ? error.message
+    : 'The server could not be reached.';
+}
 
-// Skeleton page. It proves the browser can reach the API, and through it
-// the database, by way of the dev proxy. The game screens replace it.
 export default function App() {
-  const [api, setApi] = useState<ApiState>('checking');
+  const [player, setPlayer] = useState<SavedPlayer | null>(null);
+  const [screen, setScreen] = useState<Screen>({ name: 'players' });
+  const [notice, setNotice] = useState<string | null>(null);
+  const [starting, setStarting] = useState(false);
 
-  useEffect(() => {
-    let cancelled = false;
+  // A round is requested in a click handler, never in an effect: React runs
+  // effects twice in development, which would issue two rounds.
+  async function startRound() {
+    if (!player) return;
+    setStarting(true);
+    setNotice(null);
+    try {
+      const { round } = await api.startRound(player.key);
+      setScreen({ name: 'play', round });
+    } catch (caught) {
+      setNotice(messageOf(caught));
+      setScreen({ name: 'home' });
+    } finally {
+      setStarting(false);
+    }
+  }
 
-    fetch('/api/health')
-      .then((response) => {
-        if (!cancelled) setApi(response.ok ? 'up' : 'down');
-      })
-      .catch(() => {
-        if (!cancelled) setApi('down');
-      });
+  const finishRound = useCallback(
+    (roundId: string, sent: { attempts: Attempt[]; inputType: InputType }) => {
+      if (!player) return;
+      api
+        .submitResult(player.key, roundId, sent)
+        .then(({ result }) => setScreen({ name: 'result', result }))
+        .catch((caught: unknown) => {
+          setNotice(`Your answers could not be saved: ${messageOf(caught)}`);
+          setScreen({ name: 'home' });
+        });
+    },
+    [player],
+  );
 
-    return () => {
-      cancelled = true;
-    };
+  const abandonRound = useCallback(() => {
+    setNotice(
+      'The round stopped because the page was hidden. Nothing was saved.',
+    );
+    setScreen({ name: 'home' });
   }, []);
 
-  return (
-    <main>
-      <h1>Arithmetic sprint</h1>
-      <p>Project skeleton. The game is not built yet.</p>
-      <p role="status">API and database: {label[api]}</p>
-    </main>
-  );
+  if (!player || screen.name === 'players') {
+    return (
+      <PlayersScreen
+        onChoose={(chosen) => {
+          setPlayer(chosen);
+          setNotice(null);
+          setScreen({ name: 'home' });
+        }}
+      />
+    );
+  }
+
+  switch (screen.name) {
+    case 'home':
+      return (
+        <HomeScreen
+          key={player.key}
+          player={player}
+          notice={notice}
+          starting={starting}
+          onStart={() => void startRound()}
+          onSwitch={() => setScreen({ name: 'players' })}
+        />
+      );
+    case 'play':
+      return (
+        <PlayScreen
+          key={screen.round.id}
+          round={screen.round}
+          onFinished={(sent) => finishRound(screen.round.id, sent)}
+          onAbandoned={abandonRound}
+        />
+      );
+    case 'result':
+      return (
+        <ResultScreen
+          result={screen.result}
+          starting={starting}
+          onPlayAgain={() => void startRound()}
+          onBack={() => setScreen({ name: 'home' })}
+        />
+      );
+  }
 }
