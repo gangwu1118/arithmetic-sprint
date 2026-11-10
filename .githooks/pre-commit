@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# Refuse a commit while the fast checks fail. People and coding agents go
+# through the same gate. `npm install` points git at this folder.
+exec bash "$(git rev-parse --show-toplevel)/scripts/check.sh"
