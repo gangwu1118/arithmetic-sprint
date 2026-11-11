@@ -28,6 +28,7 @@
     "test": "npm run test --workspaces",
     "test:e2e": "npm run test:e2e -w server",
     "test:browser": "playwright test",
+    "test:browser:report": "playwright show-report",
     "prepare": "git config core.hooksPath .githooks || true"
   },
   "devDependencies": {
