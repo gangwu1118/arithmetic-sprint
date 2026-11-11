@@ -47,15 +47,18 @@ database on the default local server.
 ```bash
 npm run check          # format, types, lint, unit tests. No database. ~10 s
 npm run check:full     # the same, plus the HTTP tests against PostgreSQL. ~11 s
-npm run test:browser   # a real 60-second round in Chrome. ~75 s
+npm run test:browser   # 18 cases in Chrome, on their own servers and database
+npm run test:browser:report  # every step of every case, with a screenshot
 ```
 
-`check` also runs before every commit (a git hook). The browser test drives
-the Chrome installed on the machine, starts the servers if they are not
-running, and needs the database from `npm run setup`.
+`check` also runs before every commit (a git hook). The browser tests drive
+the Chrome installed on the machine. They start their own API and web app,
+on ports 4321 and 5194, against their own database (`sprint_e2e`, rebuilt
+and seeded on every run), so they never touch the development data and can
+run while `npm run dev` is up. They need PostgreSQL from `npm run setup`.
 
-At the last commit: 120 unit tests (95 server, 25 web), 62 HTTP tests, and 3
-browser tests. All pass, from a fresh clone too.
+At the last commit: 120 unit tests (95 server, 25 web), 62 HTTP tests, and 18
+browser cases.
 
 ## How it fits together
 
@@ -74,7 +77,7 @@ web/             React 19 + Vite
   src/play/      the round as a pure state machine (tested), the play screen
   src/progress/  chart arithmetic (tested), the chart, the week
   src/screens/   players, home (with the progress view), result
-e2e/             the browser test (Playwright)
+e2e/             the browser tests (Playwright), a file per screen
 AGENTS.md        rules for coding agents and people; CLAUDE.md imports it
 .claude/         Claude Code settings, a stop hook, two skills, a reviewer
 ```
@@ -156,11 +159,11 @@ Then every rule was **broken on purpose** at least once (37 breaks covering
 name fails. After each layer, a separate read-only agent reviewed
 the code against the spec; its findings are in the AI notes too.
 
-| Level   | What it proves                                                                               | Where                                             |
-| ------- | -------------------------------------------------------------------------------------------- | ------------------------------------------------- |
-| Unit    | The rules: problems, scoring, timing, days, progress; the browser's round, chart and formats | `server/src/**/*.spec.ts`, `web/src/**/*.test.ts` |
-| HTTP    | Who may see what, one result per round, the conditions in the SQL, request shapes            | `server/test/*.e2e-spec.ts`                       |
-| Browser | A person plays a whole round and sees it in their progress                                   | `e2e/play-a-round.spec.ts`                        |
+| Level   | What it proves                                                                                                 | Where                                             |
+| ------- | -------------------------------------------------------------------------------------------------------------- | ------------------------------------------------- |
+| Unit    | The rules: problems, scoring, timing, days, progress; the browser's round, chart and formats                   | `server/src/**/*.spec.ts`, `web/src/**/*.test.ts` |
+| HTTP    | Who may see what, one result per round, the conditions in the SQL, request shapes                              | `server/test/*.e2e-spec.ts`                       |
+| Browser | Every screen, step by step: players, progress, rounds by keyboard and by touch, a hidden page, failed requests | `e2e/*.spec.ts` (18 cases)                        |
 
 ## Assumptions
 
@@ -197,8 +200,6 @@ the code against the spec; its findings are in the AI notes too.
 - **The sample players have fixed, public keys** (`sample-player-alex`,
   `sample-player-sam`), so anyone can open them in a seeded database. They
   are labelled as sample data everywhere.
-- **The browser test uses the development database** and leaves its test
-  players there until `npm run reset`.
 - **Development set-up only:** no production build, deployment or CI.
 - The API types are written twice, in `server` and in `web/src/api.ts`; the
   spec is the contract between them.
@@ -216,7 +217,7 @@ the code against the spec; its findings are in the AI notes too.
    change figure, and tune the problem ranges with that data.
 4. Rate limiting (`@nestjs/throttler`) and a clean-up of abandoned rounds.
 5. A production build and a CI pipeline that runs `check:full` and the
-   browser test.
+   browser tests.
 6. An accessibility review with screen-reader users.
 
 ## Time spent
@@ -279,7 +280,7 @@ for the agent.
   NestJS feature.
 - **Tests that can fail.** Test first, then every rule broken on purpose.
 
-**Where it was wrong.** [docs/ai-notes.md](docs/ai-notes.md) has 19
+**Where it was wrong.** [docs/ai-notes.md](docs/ai-notes.md) has 20
 entries, each with what caught it. Three examples:
 
 - Its first spec rule, "no problem repeats the one before", could only be
