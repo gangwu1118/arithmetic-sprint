@@ -144,7 +144,9 @@ export function PlayScreen({ round, onFinished, onAbandoned }: Props) {
       )}
 
       {state.phase === 'playing' && !problem && (
-        <p className="countdown">Every problem solved. Waiting for the time.</p>
+        <p className="countdown waiting">
+          Every problem solved. Waiting for the time.
+        </p>
       )}
 
       {state.phase === 'playing' && problem && (
@@ -165,7 +167,7 @@ export function PlayScreen({ round, onFinished, onAbandoned }: Props) {
             className={state.lastAnswerWrong ? 'entry wrong' : 'entry'}
             data-testid="entry"
           >
-            {state.draft || '?'}
+            {state.draft || <span className="placeholder">?</span>}
           </p>
           <p className="hint" aria-live="polite">
             {state.lastAnswerWrong ? 'Not quite. Try again.' : ' '}

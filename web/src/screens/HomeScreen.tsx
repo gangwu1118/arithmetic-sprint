@@ -57,7 +57,7 @@ export function HomeScreen({
     <main>
       <header className="top">
         <div>
-          <h1>Arithmetic sprint</h1>
+          <h1 className="brand">Arithmetic sprint</h1>
           <p className="player">
             {player.displayName}
             {player.isSample && <span className="badge">Sample data</span>}

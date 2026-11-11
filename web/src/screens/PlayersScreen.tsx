@@ -86,7 +86,7 @@ export function PlayersScreen({ onChoose }: Props) {
 
   return (
     <main>
-      <h1>Arithmetic sprint</h1>
+      <h1 className="brand">Arithmetic sprint</h1>
       <p className="lead">
         A 60-second round of mental arithmetic. Your results are saved and you
         see your progress over time. Only you see your results.
