@@ -47,7 +47,7 @@ database on the default local server.
 ```bash
 npm run check          # format, types, lint, unit tests. No database. ~10 s
 npm run check:full     # the same, plus the HTTP tests against PostgreSQL. ~11 s
-npm run test:browser   # 18 cases in Chrome, on their own servers and database
+npm run test:browser   # 18 cases in Chrome, on their own servers and database. ~2.5 min
 npm run test:browser:report  # every step of every case, with a screenshot
 ```
 
@@ -58,7 +58,7 @@ and seeded on every run), so they never touch the development data and can
 run while `npm run dev` is up. They need PostgreSQL from `npm run setup`.
 
 At the last commit: 120 unit tests (95 server, 25 web), 62 HTTP tests, and 18
-browser cases.
+browser cases. All pass.
 
 ## How it fits together
 
@@ -236,6 +236,7 @@ starts when the session did:
 | Web app and browser test                        | 22 min       | 00:09 – 00:31         |
 | README and a check from a fresh clone           | about 15 min | 00:31 – 00:45         |
 | Fixes found in review, and the web app's styles | about 40 min | 11 Nov, 01:10 – 12:15 |
+| Browser tests for every case                    | about 30 min | 11 Nov, 12:28 – 12:57 |
 
 The research row includes an hour's pause. Its first proposal was an n-back
 task; I set it aside and asked for a survey of the games brain-training
