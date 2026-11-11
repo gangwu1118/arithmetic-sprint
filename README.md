@@ -1,11 +1,5 @@
 # Arithmetic sprint
 
-<!--
-OWNER: before sharing this repository, confirm or correct every sentence
-marked OWNER below, then delete the markers. `grep -n OWNER README.md`
-should print nothing.
--->
-
 A small brain-training game: **60 seconds of mental arithmetic.** A player
 solves as many simple problems as they can (addition, subtraction,
 multiplication and division), the server scores the round and saves it, and
@@ -227,24 +221,29 @@ the code against the spec; its findings are in the AI notes too.
 
 ## Time spent
 
-The work ran on the evening of 10 November 2026, into the early hours of
-the 11th, in one Claude Code session, one step at a time. Times are from the commit history; the first row
+The work ran from the evening of 10 November 2026 into the 11th, in one
+Claude Code session, one step at a time. Times are from the commit history; the first row
 starts when the session did:
 
-| Step                                  | Time         | Wall clock    |
-| ------------------------------------- | ------------ | ------------- |
-| Research and design, design note      | about 1 h    | 21:05 – 23:09 |
-| Repository, skeleton, AI tooling      | 13 min       | 23:09 – 23:22 |
-| Spec and test plan, reviewed          | 9 min        | 23:22 – 23:31 |
-| Rules of the game, test first         | 17 min       | 23:31 – 23:48 |
-| Database, API and HTTP tests          | 21 min       | 23:48 – 00:09 |
-| Web app and browser test              | 22 min       | 00:09 – 00:31 |
-| README and a check from a fresh clone | about 15 min | 00:31 – 00:45 |
+| Step                                            | Time         | Wall clock            |
+| ----------------------------------------------- | ------------ | --------------------- |
+| Research and design, design note                | about 1 h    | 21:05 – 23:09         |
+| Repository, skeleton, AI tooling                | 13 min       | 23:09 – 23:22         |
+| Spec and test plan, reviewed                    | 9 min        | 23:22 – 23:31         |
+| Rules of the game, test first                   | 17 min       | 23:31 – 23:48         |
+| Database, API and HTTP tests                    | 21 min       | 23:48 – 00:09         |
+| Web app and browser test                        | 22 min       | 00:09 – 00:31         |
+| README and a check from a fresh clone           | about 15 min | 00:31 – 00:45         |
+| Fixes found in review, and the web app's styles | about 40 min | 11 Nov, 01:10 – 12:15 |
 
 The research row includes an hour's pause. Its first proposal was an n-back
 task; I set it aside and asked for a survey of the games brain-training
 products actually ship, and most of the research on scoring, feedback and
-progress carried over to the game I chose. <!-- OWNER: confirm this sentence, and add your own time reading the code and preparing, if you want it counted. -->
+progress carried over to the game I chose.
+
+The last row came after the README: two fixes found while checking the
+repository (rows 18 and 19 of the AI notes) and a restyle of the web app, in
+short sessions with long breaks between them.
 
 ## How AI tools were used
 
@@ -252,14 +251,14 @@ Claude Code (models Claude Fable 5.2, then Claude Opus 5.5) did the research,
 wrote the design note, the spec and test plan, the code and the tests, and
 ran every check. Each agent commit carries a `Co-Authored-By: Claude` line.
 
-**What I decided.** <!-- OWNER: confirm. --> I had it work one step at a
+**What I decided.** I had it work one step at a
 time and confirmed each step before the next: research, repository and
 tooling, spec and test plan, game rules, API and database, web app, README.
 I turned down its first proposal (an n-back task) and asked for a survey of
 the games real products ship before choosing again; I chose the arithmetic
 sprint from three candidates. I chose NestJS, which I had not used before,
 because it is your stack, and PostgreSQL with Drizzle, which is also new to
-me <!-- OWNER: confirm both. -->. I asked for a fresh repository with
+me. I asked for a fresh repository with
 nothing reused from an earlier attempt, and for a harness and a test design
 for the agent.
 
